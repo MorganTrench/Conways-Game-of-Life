@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
 	/* Argument Parsing */
 	// TODO something here with argc and argv, maybe a global options object
 	windowWidth = 800; windowHeight = 600;
-	gridWidth = 20;	gridHeight = 15;
+	gridWidth = 800;	gridHeight = 600;
 
 	/* GUI */
 	// Initialise GLFW
@@ -59,51 +59,57 @@ int main(int argc, char *argv[]){
 	std::cout << "Initialisation..." << std::endl;
 	/* Memory Reservation */
 	std::cout << "\tAllocating Memory..." << std::endl;
-	std::vector< std::vector< std::vector<Cell> > > space(gridWidth, std::vector< std::vector<Cell> >(gridHeight, std::vector<Cell>(2, Cell())));
+	std::vector< std::vector< Cell > > space ( gridWidth, std::vector<Cell> ( gridHeight, Cell() ) );
 
 	/* Intial State */
 	std::cout << "\tSetting up start start..." << std::endl;
 	// Clear Screen (black by default)
 	glClear(GL_COLOR_BUFFER_BIT);
-	// Reference Layer
-	int k = 0;
+	// Seed the Screen
+  	srand (time(NULL));
+	for (int i = 0; i < gridWidth; i++){
+		for (int j = 0; j < gridHeight; j++){
+			int r = rand() % 100;
+			if (r >= 90)
+				space[i][j].setState(alive);
+		}
+	}
+	// space[5][10].setState(alive);
+	// space[5][11].setState(alive);
+	// space[5][12].setState(alive);
+
+	// space[35][25].setState(alive);
+	// space[36][25].setState(alive);
+	// space[37][25].setState(alive);
+	// space[38][25].setState(alive);
+	// space[39][25].setState(alive);
 
 	/* Main Loop */
 	std::cout << "Beginning Main Loop..." << std::endl;
-	// Test output
-	std::cout << "DEBUG: " << space.size() << " " << space[0].size() << " " << space[0][0].size() << std::endl;
-	// DEBUG
-	space[5][5][0].setState(alive);
-	space[5][6][0].setState(alive);
-	space[5][7][0].setState(alive);
 	while (!glfwWindowShouldClose(window)){
-		for(int i = 0; i < gridWidth; i++){
-			for(int j = 0; j < gridHeight; j++){
-				if (space[i][j][k].getState() == alive){
+		for (int i = 0; i < gridWidth; i++){
+			for (int j = 0; j < gridHeight; j++){
+				if (space[i][j].getState() == alive){
 					// Draw
 					drawCell(i, j);
-					// Increment Neighbours
-					if (k == 0){k = 1;} else {k = 0;}
-					for (int dx = -1; dx <= 1; dx++){
-						for (int dy = -1; dy <= 1; dy++){
-							if (((i + dx) > 0) && ((i + dx) < gridWidth))
-								if (((j + dy) > 0) && ((j + dy) < gridHeight))
-									space[i][j][k].alive_neighbours += 1;
+					// Increment alive neighbour count for cells
+					for (int di = -1; di < 2; di++){
+						for(int dj = -1; dj < 2; dj++){
+							if ((((i + di) >= 0)&&((i + di) < gridWidth))&&(((j + dj) >= 0)&&((j + dj) < gridHeight)))
+								if ((di != 0) || (dj != 0))
+									space[i+di][j+dj].incrementNeighbourCount();
 						}
 					}
-					if (k == 0){k = 1;} else {k = 0;}
 				}
 			}
 		}
-		// Switch Future and Present
-		if (k == 0){k = 1;} else {k = 0;}
-		for(int i = 0; i < gridWidth; i++){
-			for(int j = 0; j < gridHeight; j++){
-				space[i][j][k].step();
+		for (int i = 0; i < gridWidth; i++){
+			for (int j = 0; j < gridHeight; j++){
+				space[i][j].step();
 			}
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		// std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		// Update Screen, clear buffer and get events
 		glfwSwapBuffers(window);
 		glClear(GL_COLOR_BUFFER_BIT);

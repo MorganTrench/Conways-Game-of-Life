@@ -5,11 +5,11 @@
     class Cell{
 
         /* Fields */
-        State state;
+        State current_state;
+        int alive_neighbours;
 
 
       public:
-        int alive_neighbours;
         /* Constructors */
         Cell();
 
@@ -20,8 +20,8 @@
         State getState();
 
         /* Mutators */
-		void incrementNeighbours();
-		State step();
+		void incrementNeighbourCount();
+		void step();
     };
 
 #endif
