@@ -95,9 +95,28 @@ int main(int argc, char *argv[]){
 					// Increment alive neighbour count for cells
 					for (int di = -1; di < 2; di++){
 						for(int dj = -1; dj < 2; dj++){
-							if ((((i + di) >= 0)&&((i + di) < gridWidth))&&(((j + dj) >= 0)&&((j + dj) < gridHeight)))
-								if ((di != 0) || (dj != 0))
+							if ((di != 0) || (dj != 0)){ // Don't increment self
+								if ((((i + di) >= 0)&&((i + di) < gridWidth))&&(((j + dj) >= 0)&&((j + dj) < gridHeight))){
+									// If within bounds
 									space[i+di][j+dj].incrementNeighbourCount();
+								} else {
+									// Add code here if toroidal universe
+									int ti = i + di; int tj = j + dj;
+									std::cout << i << "-" << j << std::endl;
+									std::cout << i + di << "-" << j + dj << std::endl;
+									if ((i + di) == gridWidth)
+										ti = 0;
+									if ((j + dj) == gridHeight)
+										tj = 0;
+									if ((i + di) == -1)
+										ti = gridWidth - 1;
+									if ((j + dj) == -1)
+										tj = gridHeight - 1;
+									std::cout << ti << "-" << tj << " " << gridHeight << std::endl;
+									space[ti][tj].incrementNeighbourCount();
+
+								}
+							}
 						}
 					}
 				}
