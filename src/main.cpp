@@ -24,7 +24,7 @@ int windowWidth, windowHeight;
 GLFWwindow* window;
 void error_callback(int error, const char* description);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void drawCell(int i, int j);
+void drawCell(int i, int j, int lifetime);
 
 /* Code */
 int main(int argc, char *argv[]){
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
 	/* Argument Parsing */
 	// TODO something here with argc and argv, maybe a global options object
 	windowWidth = 800; windowHeight = 600;
-	gridWidth = 800;	gridHeight = 600;
+	gridWidth = 80; gridHeight = 60;
 
 	/* GUI */
 	// Initialise GLFW
@@ -91,31 +91,22 @@ int main(int argc, char *argv[]){
 			for (int j = 0; j < gridHeight; j++){
 				if (space[i][j].getState() == alive){
 					// Draw
-					drawCell(i, j);
+					drawCell(i, j, space[i][j].getLifeTime());
 					// Increment alive neighbour count for cells
 					for (int di = -1; di < 2; di++){
 						for(int dj = -1; dj < 2; dj++){
 							if ((di != 0) || (dj != 0)){ // Don't increment self
-								if ((((i + di) >= 0)&&((i + di) < gridWidth))&&(((j + dj) >= 0)&&((j + dj) < gridHeight))){
-									// If within bounds
-									space[i+di][j+dj].incrementNeighbourCount();
-								} else {
-									// Add code here if toroidal universe
-									int ti = i + di; int tj = j + dj;
-									std::cout << i << "-" << j << std::endl;
-									std::cout << i + di << "-" << j + dj << std::endl;
-									if ((i + di) == gridWidth)
-										ti = 0;
-									if ((j + dj) == gridHeight)
-										tj = 0;
-									if ((i + di) == -1)
-										ti = gridWidth - 1;
-									if ((j + dj) == -1)
-										tj = gridHeight - 1;
-									std::cout << ti << "-" << tj << " " << gridHeight << std::endl;
-									space[ti][tj].incrementNeighbourCount();
-
-								}
+								// Add code here if toroidal universe
+								int ti = i + di; int tj = j + dj;
+								if ((i + di) == gridWidth)
+									ti = 0;
+								if ((j + dj) == gridHeight)
+									tj = 0;
+								if ((i + di) == -1)
+									ti = gridWidth - 1;
+								if ((j + dj) == -1)
+									tj = gridHeight - 1;
+								space[ti][tj].incrementNeighbourCount();
 							}
 						}
 					}
@@ -128,7 +119,7 @@ int main(int argc, char *argv[]){
 			}
 		}
 
-		// std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		// Update Screen, clear buffer and get events
 		glfwSwapBuffers(window);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -144,12 +135,12 @@ int main(int argc, char *argv[]){
 	exit(EXIT_SUCCESS);
 }
 
-void drawCell(int i, int j){
-	double rgb [3] = { 1.0f, 2.0f, 0.0f};
+void drawCell(int i, int j, int lifetime){
+	double rgb [3] = { 1.0f, 4.0f, 0.0f};
 	float sqWidth = 2.0 / gridWidth;
 	float sqHeight = 2.0 / gridHeight;
 	glBegin(GL_QUADS);
-	glColor3f(rgb[0], rgb[1], rgb[2]);
+	glColor3f(rgb[0], rgb[1]/lifetime, rgb[2]);
     glVertex3f((-1.0 + i*sqWidth), (-1.0 + j*sqHeight), 0);
 	glVertex3f((-1.0 + i*sqWidth), (-1.0 + (j+1)*sqHeight), 0);
 	glVertex3f((-1.0 + (i+1)*sqWidth), (-1.0 + (j+1)*sqHeight), 0);

@@ -7,6 +7,7 @@
         /* Fields */
         State current_state;
         int alive_neighbours;
+        int turns_alive;
 
 
       public:
@@ -18,6 +19,7 @@
 
         /* Getters */
         State getState();
+        int getLifeTime();
 
         /* Mutators */
 		void incrementNeighbourCount();
